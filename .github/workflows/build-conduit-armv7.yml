@@ -23,11 +23,20 @@ jobs:
       - name: Fetch latest stable Conduit release
         id: get_tag
         run: |
-          TAG=$(curl -Ls https://api.github.com/repos/matrix-org/conduit/releases/latest \
-            | jq -r '.tag_name')
+          API=$(curl -Ls https://api.github.com/repos/matrix-org/conduit/releases)
+
+          if ! echo "$API" | jq -e 'type == "array"' > /dev/null; then
+            echo "GitHub API did not return an array:"
+            echo "$API"
+            exit 1
+          fi
+
+          TAG=$(echo "$API" \
+            | jq -r '.[] | select(.prerelease == false) | .tag_name' \
+            | head -n 1)
 
           if [ -z "$TAG" ] || [ "$TAG" = "null" ]; then
-            echo "Failed to extract latest release tag"
+            echo "Failed to extract latest stable release tag"
             exit 1
           fi
 
