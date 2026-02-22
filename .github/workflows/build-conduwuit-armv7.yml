@@ -20,12 +20,19 @@ jobs:
       - name: Fetch latest conduwuit tag
         id: get_tag
         run: |
-          TAG=$(curl -s https://api.github.com/repos/girlbossceo/conduwuit/tags | jq -r '.[0].name')
-          if [ "$TAG" = "null" ] || [ -z "$TAG" ]; then
+          TAG=$(curl -s https://api.github.com/repos/girlbossceo/conduwuit/git/refs/tags \
+            | jq -r '.[].ref' \
+            | sed 's|refs/tags/||' \
+            | sort -V \
+            | tail -n 1)
+
+          if [ -z "$TAG" ] || [ "$TAG" = "null" ]; then
             echo "Failed to fetch latest tag"
             exit 1
           fi
+
           echo "tag=$TAG" >> $GITHUB_OUTPUT
+
 
       - name: Clone conduwuit source
         run: |
