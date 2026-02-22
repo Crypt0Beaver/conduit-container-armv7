@@ -23,7 +23,7 @@ jobs:
       - name: Fetch latest stable Conduit tag
         id: get_tag
         run: |
-          API=$(curl -Ls https://api.github.com/repos/matrix-org/conduit/tags)
+          API=$(curl -Ls https://api.github.com/repos/timokoesters/conduit/tags)
 
           if ! echo "$API" | jq -e 'type == "array"' > /dev/null; then
             echo "GitHub API did not return an array:"
@@ -46,7 +46,7 @@ jobs:
 
       - name: Clone Conduit source
         run: |
-          git clone https://github.com/matrix-org/conduit.git
+          git clone https://github.com/timokoesters/conduit.git
           cd conduit
           git checkout "${{ steps.get_tag.outputs.tag }}"
 
