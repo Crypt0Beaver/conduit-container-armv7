@@ -129,6 +129,14 @@ jobs:
           name: conduit-vendor
           path: conduit
 
+      - name: Ensure vendor config is in place
+        run: |
+          ls -R conduit
+          if [ ! -f conduit/.cargo/config.toml ]; then
+            echo "ERROR: .cargo/config.toml missing!"
+            exit 1
+          fi
+
       # -----------------------------
       # Lowercase GHCR owner
       # -----------------------------
