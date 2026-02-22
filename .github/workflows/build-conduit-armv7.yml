@@ -11,6 +11,9 @@ on:
 jobs:
   vendor:
     runs-on: ubuntu-latest
+    outputs: 
+      conduit_tag: ${{ steps.get_tag.outputs.tag }}
+      
     steps:
 
       - name: Fetch latest stable Conduit tag
@@ -74,35 +77,11 @@ jobs:
       - name: Checkout this repo
         uses: actions/checkout@v4
 
-      - name: Fetch latest stable Conduit tag
-        id: get_tag
-        run: |
-          API=$(curl -Ls https://api.github.com/repos/timokoesters/conduit/tags)
-
-          if ! echo "$API" | jq -e 'type == "array"' > /dev/null; then
-            echo "GitHub API did not return an array:"
-            echo "$API"
-            exit 1
-          fi
-
-          TAG=$(echo "$API" \
-            | jq -r '.[].name' \
-            | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' \
-            | sort -V \
-            | tail -n 1)
-
-          if [ -z "$TAG" ] || [ "$TAG" = "null" ]; then
-            echo "Failed to extract latest stable tag"
-            exit 1
-          fi
-
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
-
       - name: Clone Conduit source
         run: |
           git clone https://github.com/timokoesters/conduit.git
           cd conduit
-          git checkout "${{ steps.get_tag.outputs.tag }}"
+          git checkout "${{ needs.vendor.outputs.conduit_tag }}"
 
       - name: Set lowercase owner
         id: vars
@@ -138,4 +117,4 @@ jobs:
           push: true
           tags: |
             ghcr.io/${{ steps.vars.outputs.owner_lc }}/conduit:armv7-latest
-            ghcr.io/${{ steps.vars.outputs.owner_lc }}/conduit:${{ steps.get_tag.outputs.tag }}-armv7
+            ghcr.io/${{ steps.vars.outputs.owner_lc }}/conduit:${{ needs.vendor.outputs.conduit_tag }}-armv7
