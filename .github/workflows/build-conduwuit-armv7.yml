@@ -3,7 +3,7 @@ name: Build Conduwuit ARMv7
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 3 * * *"   # optional: nightly rebuild
+    - cron: "0 3 * * *"
 
 jobs:
   build:
@@ -17,10 +17,14 @@ jobs:
       - name: Checkout this repo
         uses: actions/checkout@v4
 
-      - name: Fetch latest conduwuit release tag
+      - name: Fetch latest conduwuit tag
         id: get_tag
         run: |
-          TAG=$(curl -s https://api.github.com/repos/girlbossceo/conduwuit/releases/latest | jq -r .tag_name)
+          TAG=$(curl -s https://api.github.com/repos/girlbossceo/conduwuit/tags | jq -r '.[0].name')
+          if [ "$TAG" = "null" ] || [ -z "$TAG" ]; then
+            echo "Failed to fetch latest tag"
+            exit 1
+          fi
           echo "tag=$TAG" >> $GITHUB_OUTPUT
 
       - name: Clone conduwuit source
@@ -28,6 +32,10 @@ jobs:
           git clone https://github.com/girlbossceo/conduwuit.git
           cd conduwuit
           git checkout "${{ steps.get_tag.outputs.tag }}"
+
+      - name: Set lowercase owner
+        id: vars
+        run: echo "owner_lc=${GITHUB_REPOSITORY_OWNER,,}" >> $GITHUB_OUTPUT
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -42,10 +50,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set lowercase owner
-        id: vars
-        run: echo "owner_lc=${GITHUB_REPOSITORY_OWNER,,}" >> $GITHUB_OUTPUT
-        
       - name: Build and push ARMv7 image
         uses: docker/build-push-action@v6
         with:
