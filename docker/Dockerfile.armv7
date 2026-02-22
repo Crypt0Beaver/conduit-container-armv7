@@ -22,7 +22,11 @@ RUN rustup target add armv7-unknown-linux-gnueabihf
 WORKDIR /src
 
 # Copy Conduit source (GitHub Actions clones it into this directory)
-COPY . .
+# COPY . .
+COPY .cargo /src/.cargo
+COPY vendor /src/vendor
+COPY . /src
+
 
 # Environment variables for cross‑compilation
 ENV CC_armv7_unknown_linux_gnueabihf=arm-linux-gnueabihf-gcc
