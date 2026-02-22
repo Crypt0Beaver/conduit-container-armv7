@@ -58,7 +58,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: conduit-vendor
-          path: conduit/vendor
+          path: |
+            vendor
+            .cargo
 
   build:
     runs-on: ubuntu-latest
