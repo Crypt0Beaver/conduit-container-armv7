@@ -1,7 +1,8 @@
 [source.crates-io]
 replace-with = "vendored-sources"
 
-[source."https://github.com/ruma/ruma.git"]
+[source."git+https://github.com/ruma/ruma.git"]
+git = "https://github.com/ruma/ruma.git"
 replace-with = "vendored-sources"
 
 [source.vendored-sources]
