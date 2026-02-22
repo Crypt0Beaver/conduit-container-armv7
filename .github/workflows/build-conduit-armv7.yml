@@ -1,0 +1,81 @@
+name: Build Conduit ARMv7
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+  schedule:
+    - cron: "0 3 * * *"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout this repo
+        uses: actions/checkout@v4
+
+      # Fetch all tags and select the latest stable vX.Y.Z
+      - name: Fetch latest stable Conduit tag
+        id: get_tag
+        run: |
+          API=$(curl -Ls https://api.github.com/repos/matrix-org/conduit/git/refs/tags)
+
+          if ! echo "$API" | jq -e 'type == "array"' > /dev/null; then
+            echo "GitHub API did not return an array:"
+            echo "$API"
+            exit 1
+          fi
+
+          TAG=$(echo "$API" \
+            | jq -r '.[].ref' \
+            | sed 's|refs/tags/||' \
+            | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' \
+            | sort -V \
+            | tail -n 1)
+
+          if [ -z "$TAG" ] || [ "$TAG" = "null" ]; then
+            echo "Failed to extract latest stable tag"
+            exit 1
+          fi
+
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Clone Conduit source
+        run: |
+          git clone https://github.com/matrix-org/conduit.git
+          cd conduit
+          git checkout "${{ steps.get_tag.outputs.tag }}"
+
+      - name: Set lowercase owner
+        id: vars
+        run: echo "owner_lc=${GITHUB_REPOSITORY_OWNER,,}" >> $GITHUB_OUTPUT
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push ARMv7 image
+        uses: docker/build-push-action@v6
+        with:
+          context: conduit
+          file: docker/Dockerfile.armv7
+          platforms: linux/arm/v7
+          push: true
+          tags: |
+            ghcr.io/${{ steps.vars.outputs.owner_lc }}/conduit:armv7-latest
+            ghcr.io/${{ steps.vars.outputs.owner_lc }}/conduit:${{ steps.get_tag.outputs.tag }}-armv7
