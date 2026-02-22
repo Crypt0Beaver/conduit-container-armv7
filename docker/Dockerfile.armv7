@@ -3,7 +3,7 @@
 # ============================
 FROM rust:1.81-bullseye AS builder
 
-# Install ARMv7 cross toolchain
+# Install ARMv7 cross toolchain + dependencies
 RUN dpkg --add-architecture armhf \
     && apt-get update \
     && apt-get install -y \
@@ -11,6 +11,10 @@ RUN dpkg --add-architecture armhf \
         libc6-dev-armhf-cross \
         pkg-config \
         libssl-dev:armhf \
+        libsqlite3-dev:armhf \
+        libclang-dev \
+        clang \
+        git \
     && rm -rf /var/lib/apt/lists/*
 
 # Add ARMv7 Rust target
@@ -18,14 +22,14 @@ RUN rustup target add armv7-unknown-linux-gnueabihf
 
 WORKDIR /src
 
-# Copy source (GitHub Actions clones conduwuit into this directory)
+# Copy source (GitHub Actions clones Continuwuity into this directory)
 COPY . .
 
 # Environment variables for cross‑compilation
 ENV CC_armv7_unknown_linux_gnueabihf=arm-linux-gnueabihf-gcc
 ENV CARGO_TARGET_ARMV7_UNKNOWN_LINUX_GNUEABIHF_LINKER=arm-linux-gnueabihf-gcc
 
-# Build conduwuit in release mode for ARMv7
+# Build Continuwuity in release mode for ARMv7
 RUN cargo build --release --target armv7-unknown-linux-gnueabihf
 
 # ============================
@@ -37,18 +41,19 @@ FROM debian:bullseye-slim
 RUN apt-get update && apt-get install -y \
         ca-certificates \
         libssl1.1 \
+        libsqlite3-0 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
 # Copy the compiled binary
-COPY --from=builder /src/target/armv7-unknown-linux-gnueabihf/release/conduwuit /usr/local/bin/conduwuit
+COPY --from=builder /src/target/armv7-unknown-linux-gnueabihf/release/continuwuity /usr/local/bin/continuwuity
 
 # Create data directory
-RUN mkdir -p /var/lib/conduwuit
-VOLUME ["/var/lib/conduwuit"]
+RUN mkdir -p /var/lib/continuwuity
+VOLUME ["/var/lib/continuwuity"]
 
 EXPOSE 6167
 
-ENTRYPOINT ["/usr/local/bin/conduwuit"]
-CMD ["--config", "/var/lib/conduwuit/conduwuit.toml"]
+ENTRYPOINT ["/usr/local/bin/continuwuity"]
+CMD ["--config", "/var/lib/continuwuity/continuwuity.toml"]
