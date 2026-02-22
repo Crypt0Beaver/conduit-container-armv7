@@ -20,19 +20,27 @@ jobs:
       - name: Fetch latest conduwuit tag
         id: get_tag
         run: |
-          TAG=$(curl -s https://api.github.com/repos/girlbossceo/conduwuit/git/refs/tags \
+          RESP=$(curl -s https://api.github.com/repos/girlbossceo/conduwuit/git/refs/tags)
+
+          # Check if response is a JSON array
+          if ! echo "$RESP" | jq -e 'type == "array"' > /dev/null; then
+            echo "GitHub API did not return an array:"
+            echo "$RESP"
+            exit 1
+          fi
+
+          TAG=$(echo "$RESP" \
             | jq -r '.[].ref' \
             | sed 's|refs/tags/||' \
             | sort -V \
             | tail -n 1)
 
           if [ -z "$TAG" ] || [ "$TAG" = "null" ]; then
-            echo "Failed to fetch latest tag"
+            echo "Failed to extract latest tag"
             exit 1
           fi
 
           echo "tag=$TAG" >> $GITHUB_OUTPUT
-
 
       - name: Clone conduwuit source
         run: |
