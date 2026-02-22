@@ -9,8 +9,34 @@ on:
     - cron: "0 3 * * *"
 
 jobs:
+  vendor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Conduit
+        uses: actions/checkout@v4
+        with:
+          repository: timokoesters/conduit
+          ref: main  # or a tag you choose
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cargo-vendor
+        run: cargo install cargo-vendor
+
+      - name: Vendor dependencies
+        run: |
+          cargo vendor vendor
+
+      - name: Upload vendor artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: conduit-vendor
+          path: vendor
+
   build:
     runs-on: ubuntu-latest
+    needs: vendor
 
     permissions:
       contents: read
@@ -54,6 +80,14 @@ jobs:
         id: vars
         run: echo "owner_lc=${GITHUB_REPOSITORY_OWNER,,}" >> $GITHUB_OUTPUT
 
+
+      - name: Download vendor artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: conduit-vendor
+          path: vendor
+
+     
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
