@@ -23,11 +23,11 @@ WORKDIR /src
 
 # Copy Conduit source (GitHub Actions clones it into this directory)
 # COPY . .
+#COPY . /src
+COPY .cargo /src/.cargo
 RUN ls -R .
 RUN pwd
 RUN cat .cargo/config.toml
-COPY . /src
-COPY .cargo /src/.cargo
 COPY vendor /src/vendor
 
 RUN ls -R /src/.cargo # && ls -R /src/vendor
