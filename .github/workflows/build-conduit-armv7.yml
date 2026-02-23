@@ -173,8 +173,8 @@ jobs:
 
       - name: Move vendor files into build context
         run: |
-          cp conduit/vendor ./vendor
-          cp conduit/.cargo ./.cargo
+          cp -r conduit/vendor ./vendor
+          cp -r conduit/.cargo ./.cargo
 
 
       # -----------------------------
