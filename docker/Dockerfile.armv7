@@ -27,6 +27,9 @@ COPY .cargo /src/.cargo
 COPY vendor /src/vendor
 COPY . /src
 
+RUN ls -R /src/.cargo && ls -R /src/vendor
+
+
 
 # Environment variables for cross‑compilation
 ENV CC_armv7_unknown_linux_gnueabihf=arm-linux-gnueabihf-gcc
