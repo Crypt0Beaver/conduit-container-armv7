@@ -25,7 +25,7 @@ WORKDIR /src
 # COPY . .
 #COPY . /src
 COPY .cargo /src/.cargo
-RUN ls -R .
+RUN ls -alR .
 RUN pwd
 RUN cat .cargo/config.toml
 COPY vendor /src/vendor
