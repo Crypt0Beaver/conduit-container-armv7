@@ -98,10 +98,11 @@ jobs:
             ${{ runner.os }}-cargo-
             
       - name: Vendor dependencies
-        run: |
-          cargo vendor vendor
+        working-directory: conduit
+        run: cargo vendor vendor
 
       - name: Write .cargo/config.toml
+        working-directory: conduit
         run: |
           mkdir -p .cargo
           cat > .cargo/config.toml << 'EOF'
@@ -126,8 +127,8 @@ jobs:
         with:
           name: conduit-vendor
           path: |
-            vendor
-            .cargo
+            conduit/vendor
+            conduit/.cargo
           include-hidden-files: true
 
   # =====================================================================
