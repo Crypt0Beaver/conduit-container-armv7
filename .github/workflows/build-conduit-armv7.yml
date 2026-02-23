@@ -128,6 +128,7 @@ jobs:
           path: |
             vendor
             .cargo
+          include-hidden-files: true
 
   # =====================================================================
   # BUILD JOB
@@ -156,8 +157,8 @@ jobs:
           cd conduit
           git checkout "${{ needs.vendor.outputs.conduit_tag }}"
 
-      - name: Remove Conduit's cargo config 
-        run: rm -rf conduit/.cargo
+      # - name: Remove Conduit's cargo config 
+      #   run: rm -rf conduit/.cargo
 
       # -----------------------------
       # Download vendor + .cargo INTO conduit/
