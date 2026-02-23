@@ -165,11 +165,12 @@ jobs:
 
       - name: Ensure vendor config is in place
         run: |
-          ls -R conduit
+          ls -al conduit
           if [ ! -f conduit/.cargo/config.toml ]; then
             echo "ERROR: .cargo/config.toml missing!"
             exit 1
           fi
+          cat conduit/.cargo/config.toml
 
       - name: Move vendor files into build context
         run: |
