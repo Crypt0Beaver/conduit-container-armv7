@@ -203,13 +203,13 @@ jobs:
       # -----------------------------
       # Build ARMv7 image (fully offline)
       # -----------------------------
-      # - name: Build and push ARMv7 image
-      #   uses: docker/build-push-action@v6
-      #   with:
-      #     context: conduit
-      #     file: docker/Dockerfile.armv7
-      #     platforms: linux/arm/v7
-      #     push: true
-      #     tags: |
-      #       ghcr.io/${{ steps.vars.outputs.owner_lc }}/conduit:armv7-latest
-      #       ghcr.io/${{ steps.vars.outputs.owner_lc }}/conduit:${{ needs.vendor.outputs.conduit_tag }}-armv7
+      - name: Build and push ARMv7 image
+        uses: docker/build-push-action@v6
+        with:
+          context: conduit
+          file: docker/Dockerfile.armv7
+          platforms: linux/arm/v7
+          push: true
+          tags: |
+            ghcr.io/${{ steps.vars.outputs.owner_lc }}/conduit:armv7-latest
+            ghcr.io/${{ steps.vars.outputs.owner_lc }}/conduit:${{ needs.vendor.outputs.conduit_tag }}-armv7
