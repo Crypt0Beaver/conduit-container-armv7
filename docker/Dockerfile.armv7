@@ -28,6 +28,7 @@ COPY vendor /src/vendor
 COPY . /src
 
 RUN ls -R /src/.cargo && ls -R /src/vendor
+RUN cat /src/.cargo/config.toml
 
 
 
