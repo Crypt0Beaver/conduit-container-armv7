@@ -50,6 +50,7 @@ jobs:
         with:
           repository: timokoesters/conduit
           ref: ${{ steps.get_tag.outputs.tag }}
+          path: conduit
 
       # -----------------------------
       # Install Rust + cargo-vendor
