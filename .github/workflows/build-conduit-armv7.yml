@@ -137,6 +137,12 @@ jobs:
             exit 1
           fi
 
+      - name: Move vendor files into build context
+        run: |
+          cp -r conduit/vendor .
+          cp -r conduit/.cargo .
+
+
       # -----------------------------
       # Lowercase GHCR owner
       # -----------------------------
