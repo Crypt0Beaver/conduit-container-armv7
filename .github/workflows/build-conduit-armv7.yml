@@ -171,7 +171,7 @@ jobs:
 
       - name: Ensure vendor config is in place
         run: |
-          ls -alR conduit
+          ls -al conduit
           if [ ! -f conduit/.cargo/config.toml ]; then
             echo "ERROR: .cargo/config.toml missing!"
             exit 1
