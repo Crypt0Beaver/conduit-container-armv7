@@ -1,7 +1,7 @@
 # ============================
 # 1. Builder image
 # ============================
-FROM rust:1.81-bullseye AS builder
+FROM rust:1.85-bullseye AS builder
 
 # Install ARMv7 cross toolchain + required system libs
 RUN dpkg --add-architecture armhf \
