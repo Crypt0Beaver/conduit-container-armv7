@@ -120,6 +120,9 @@ jobs:
 
           cat .cargo/config.toml
 
+      - run: cat conduit/Cargo.lock | grep ruma
+
+
       # -----------------------------
       # Upload vendor + .cargo
       # -----------------------------
@@ -178,7 +181,11 @@ jobs:
             echo "ERROR: .cargo/config.toml missing!"
             exit 1
           fi
+          echo "config.toml:"
           cat conduit/.cargo/config.toml
+          echo "Cargo.lock:"
+          cat conduit/Cargo.lock | grep ruma
+
 
       # - name: Move vendor files into build context
       #   run: |
