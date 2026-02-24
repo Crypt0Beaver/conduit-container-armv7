@@ -27,35 +27,33 @@ RUN rustup target add armv7-unknown-linux-gnueabihf
 
 WORKDIR /src
 
-# Copy Conduit source (GitHub Actions clones it into this directory)
-# COPY . .
-COPY . /src
-COPY .cargo /src/.cargo
-COPY vendor /src/vendor
+# ----------------------------
+# 1. Copy only dependency files
+# ----------------------------
+COPY Cargo.toml Cargo.lock ./
+COPY vendor ./vendor
+COPY .cargo ./.cargo
 
-RUN ls -R /src/.cargo # && ls -R /src/vendor
-RUN cat /src/.cargo/config.toml
-
-
-
-# Environment variables for cross‑compilation
-ENV CC_armv7_unknown_linux_gnueabihf=arm-linux-gnueabihf-gcc
-ENV CARGO_TARGET_ARMV7_UNKNOWN_LINUX_GNUEABIHF_LINKER=arm-linux-gnueabihf-gcc
-
-# Build Conduit in release mode for ARMv7
-# RUN cargo build --release --target armv7-unknown-linux-gnueabihf
+# Pre-build dependencies (cached)
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
     --mount=type=cache,target=/usr/local/cargo/git \
-    --mount=type=cache,target=/src/target \
-    cargo build --release --target armv7-unknown-linux-gnueabihf
+    cargo build --release --target armv7-unknown-linux-gnueabihf --locked || true
 
+# ----------------------------
+# 2. Copy source code
+# ----------------------------
+COPY src ./src
+
+# Build final binary (cached)
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=/usr/local/cargo/git \
+    cargo build --release --target armv7-unknown-linux-gnueabihf --locked
 
 # ============================
 # 2. Runtime image
 # ============================
 FROM debian:bullseye-slim
 
-# Install runtime dependencies
 RUN apt-get update && apt-get install -y \
         ca-certificates \
         libssl1.1 \
@@ -64,10 +62,8 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# Copy the compiled binary
 COPY --from=builder /src/target/armv7-unknown-linux-gnueabihf/release/conduit /usr/local/bin/conduit
 
-# Create data directory
 RUN mkdir -p /var/lib/conduit
 VOLUME ["/var/lib/conduit"]
 
