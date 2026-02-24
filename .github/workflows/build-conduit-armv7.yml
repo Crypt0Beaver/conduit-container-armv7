@@ -107,6 +107,9 @@ jobs:
         run: |
           mkdir -p .cargo
           cat > .cargo/config.toml << 'EOF'
+          [env]
+          RUMA_UNSTABLE_EXHAUSTIVE_TYPES = "1"
+    
           [source.crates-io]
           replace-with = "vendored-sources"
 
