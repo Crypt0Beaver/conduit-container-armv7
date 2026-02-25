@@ -70,4 +70,4 @@ VOLUME ["/var/lib/conduit"]
 EXPOSE 6167
 
 ENTRYPOINT ["/usr/local/bin/conduit"]
-CMD ["--config", "/var/lib/conduit/conduit.toml"]
+# CMD ["--config", "/var/lib/conduit/conduit.toml"]
