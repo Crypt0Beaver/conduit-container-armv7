@@ -59,7 +59,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.rustup
-          key: ${{ runner.os }}-rustup-${{ hashFiles('rust-toolchain.toml', 'rust-toolchain') }}
+          key: ${{ runner.os }}-rustup-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: |
             ${{ runner.os }}-rustup-
 
@@ -70,7 +70,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cargo/bin
-          key: cargo-bin-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+          key: cargo-bin-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: |
             cargo-bin-${{ runner.os }}-
 
@@ -94,7 +94,7 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             conduit/target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: |
             ${{ runner.os }}-cargo-
             
